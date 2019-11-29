@@ -1,5 +1,21 @@
+import random
+
 def poker(hands):
-	return max(hands, key=hand_rank)
+	""" Return list of winning hands"""
+	return allmax(hands, key=hand_rank)
+
+def allmax(iterable, key=None):
+	result = []
+	max_val = None
+	key = key or (lambda x:x)
+	for x in iterable:
+		val = key(x)
+		if val > max_val or not result:
+			result, max_val = [x], val
+		elif xval == max_val:
+			result.append(x)
+	return result
+
 
 def hand_rank(hand):
 	ranks = card_ranks(hand)    #returns in sorted order
@@ -26,7 +42,8 @@ def hand_rank(hand):
 def card_ranks(cards):
 	ranks = ['--23456789TJQKA'.index(r) for r, s in cards]
 	ranks.sort(reverse = True)
-	return ranks
+
+	return [5,4,3,2,1] if ranks == [14, 5, 4, 3, 2] else ranks
 
 def straight(ranks):
 	return max(ranks) - min(ranks) == 4 and len(set(ranks)) == 5
@@ -77,3 +94,16 @@ def test():
 	assert flush(sf) == True
 	assert flush(fh) == False
 	return 'tests passed'
+
+mydeck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
+
+def deal(num_players, num_cards_in_hand=5, deck=mydeck):
+	random.shuffle(mydeck)
+	hands = []
+	for i in range(num_players):
+		hand = mydeck[i*num_cards_in_hand: (i+1)*num_cards_in_hand]
+		hands.append(hand)
+	return hands
+
+print deal(2)
+
