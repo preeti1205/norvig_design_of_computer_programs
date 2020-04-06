@@ -1,8 +1,41 @@
 import random
+import itertools
+
+
+def best_hand(hand):
+	"Return the 5 cards that will be make the best hand out of the 5+ cards you have"
+	return max( itertools.combinations(hand, 5), key=hand_rank )
 
 def poker(hands):
 	""" Return list of winning hands"""
 	return allmax(hands, key=hand_rank)
+
+all_ranks = '23456789TJQKA'
+red_cards = [r + s for r in all_ranks for s in 'HD']
+black_cards = [r + s for r in all_ranks for s in 'SC']
+
+def best_wild_hand(hand):
+	"Try all values for jokers in all 5-card selections. ? signifies Joker."
+	
+	# map(replacements, card)
+	# test_cards = ['2D', '?B']
+	# print  (map(replacements, test_cards))
+	# for h in itertools.product(*map(replacements, test_cards)): #star in important. Multiply by itself as many times
+	# 	print h
+
+	hands = set(best_hand(h) 
+		        for h in itertools.product(*map(replacements, hand)))
+	return max(hands, key=hand_rank)
+
+
+
+def replacements(card):
+	if card == '?B':
+		return black_cards
+	if card == '?R':
+		return red_cards
+	else:
+		return [card] #notice how we return a list
 
 def allmax(iterable, key=None):
 	result = []
@@ -19,10 +52,10 @@ def allmax(iterable, key=None):
 
 def hand_rank(hand):
 	ranks = card_ranks(hand)    #returns in sorted order
-	if straight(ranks) and flush(hand): #straight flush
+	if straight(ranks) and flush(hand):            # straight flush
 		return (8, max(ranks))
-	elif kind(4, hands):
-		return (7, kind(4, hands), kind(1,hands))
+	elif kind(4, ranks):                            # 4 of a kind
+		return (7, kind(4, ranks), kind(1, ranks))
 	elif kind(3, ranks) and kind(2, ranks):        # full house
 		return (6, kind(3, ranks), kind(2, ranks))
 	elif flush(hand):                              # flush
@@ -30,9 +63,9 @@ def hand_rank(hand):
 	elif straight(ranks):                          # straight
 		return (4, max(ranks))
 	elif kind(3, ranks):                           # 3 of a kind
-		return (3, kind(3, max(ranks)), ranks)
-	elif two_pair(ranks):                          # 2 pair
-		return (2, two_pair(ranks), ranks)
+		return (3, kind(3, ranks), ranks)
+	elif two_pairs(ranks):                          # 2 pair
+		return (2, two_pairs(ranks), ranks)
 	elif kind(2, ranks):                           # kind
 		return (1, kind(2, ranks), ranks)
 	else:                                          # high card
@@ -95,6 +128,15 @@ def test():
 	assert flush(fh) == False
 	return 'tests passed'
 
+def test_best_hand():
+    assert (sorted(best_hand("6C 7C 8C 9C TC 5C JS".split()))
+            == ['6C', '7C', '8C', '9C', 'TC'])
+    assert (sorted(best_hand("TD TC TH 7C 7D 8C 8S".split()))
+            == ['8C', '8S', 'TC', 'TD', 'TH'])
+    assert (sorted(best_hand("JD TC TH 7C 7D 7S 7H".split()))
+            == ['7C', '7D', '7H', '7S', 'JD'])
+    return 'test_best_hand passes'
+
 mydeck = [r+s for r in '23456789TJQKA' for s in 'SHDC']
 
 def deal(num_players, num_cards_in_hand=5, deck=mydeck):
@@ -106,4 +148,7 @@ def deal(num_players, num_cards_in_hand=5, deck=mydeck):
 	return hands
 
 print deal(2)
+print best_hand("JD TC TH 7C 7D 7S 7H".split())
+print test_best_hand()
+
 
